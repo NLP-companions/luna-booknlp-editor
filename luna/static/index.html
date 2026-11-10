@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luna - a BookNLP editor</title>
+<script src="/static/js/theme.js"></script>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div id="app">
+  <header class="bar">
+    <div class="brand"><a class="btn sm" href="/library" title="All books and working copies (BookNLP editor)">Library</a><button class="btn sm" id="backBtn" title="Back to where you were (⌘[)" disabled>← Back</button><span class="bookid" id="bookid"></span></div>
+    <div class="seg" id="viewSwitch" role="group" aria-label="View"><button data-view="table" title="Table view ( v )">Table</button><button data-view="annot" title="Annotation view ( v )">Annotation</button><button data-view="chars" title="Entities: coreference groups of every type">Entities</button><button data-view="quotes" title="All quotes and their speakers">Quotes</button><button data-view="eattr" title="One entity mention at a time with the text around it, to fix which entity it belongs to">Entity-Attribution</button></div>
+    <div class="actions">
+      <button class="btn ico" id="flagsBtn" title="Flags: everything you marked to check on later" aria-label="Flags"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg><span class="cnt" id="flagsBadge" hidden></span></button>
+      <button class="btn ico" id="findBtn" title="Find ( / )" aria-label="Find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button>
+      <button class="btn ico" id="undoBtn" title="Undo (⌘Z)" aria-label="Undo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button class="btn ico" id="redoBtn" title="Redo (⇧⌘Z)" aria-label="Redo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+      <span class="savestat" id="saveStat" role="status" aria-live="polite" title="Every change is saved to the working copy as you make it"></span>
+      <button class="btn warn" id="sugBtn" hidden>Suggestions<span class="cnt" id="sugCnt" hidden></span></button>
+      <div class="menuwrap">
+        <button class="btn ico" id="moreBtn" title="More: Settings, History, Export" aria-label="More" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
+        <div class="menu" id="moreMenu" role="menu" hidden>
+          <a class="btn" id="settingsBtn" role="menuitem" href="/settings" title="Suggestion settings, BookNLP output folders, display — everything that applies to every book">Settings</a>
+          <button class="btn" id="histBtn" role="menuitem">History<span class="cnt" id="histCnt" hidden></span></button>
+          <button class="btn primary" id="exportBtn" role="menuitem">Export</button>
+          <div class="menulbl">Theme</div>
+          <div class="seg themeseg" role="group" aria-label="Theme"><button data-theme="auto">Auto</button><button data-theme="light">Light</button><button data-theme="dark">Dark</button></div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <form id="findbar" class="findbar" hidden autocomplete="off">
+    <select id="fLayer" aria-label="Layer"></select>
+    <select id="fField" aria-label="Field"></select>
+    <select id="fOp" aria-label="Condition"></select>
+    <input id="fValue" type="text" placeholder="Value" aria-label="Value">
+    <select id="fWhere" aria-label="Where in the text" title="Only look in narration, or only inside quotes"></select>
+    <select id="fWithout" aria-label="Not yet annotated" title="Leave out what already has an entity, supersense or quote"></select>
+    <button class="btn primary" type="submit">Find</button>
+    <span id="fCount" class="num"></span>
+    <button class="btn" type="button" id="fClose">Close</button>
+  </form>
+  <nav class="navbar" id="navbar" aria-label="Sentences" hidden>
+    <button class="btn sm" id="colsBtn">Columns</button>
+    <button class="btn sm" id="prevBtn" title="Previous page ( [ )">‹</button>
+    <span id="range" class="range"></span>
+    <button class="btn sm" id="nextBtn" title="Next page ( ] )">›</button>
+    <input id="goto" type="text" placeholder="Go to s12, t340" aria-label="Go to sentence or token" autocomplete="off">
+    <select id="perPage" aria-label="Sentences per page">
+      <option value="5">5 / page</option><option value="15">15 / page</option>
+      <option value="30">30 / page</option><option value="60">60 / page</option>
+    </select>
+  </nav>
+  <div id="banner" class="banner" hidden></div>
+  <div class="body">
+    <main id="main" tabindex="-1"></main>
+    <div class="side">
+      <div id="sideResizer" class="resizer" role="separator" aria-orientation="vertical" aria-label="Resize side panel" tabindex="0" title="Drag to resize (double-click resets)"></div>
+      <div class="revbox" id="revBox" hidden><div class="revinfo"><div class="revtop"><span class="revlbl">Review progress</span><span id="revProg" class="num" title="Sentences marked as reviewed"></span></div><div class="revbar" aria-hidden="true"><i id="revFill"></i></div></div><button class="btn sm primary" id="nextRevBtn" title="Go to the next sentence not yet reviewed">Next unreviewed</button></div>
+      <button class="sidetoggle" type="button" id="sideToggle"></button>
+      <aside id="panel" class="panel" aria-label="Details"></aside>
+    </div>
+  </div>
+</div>
+<div id="drawer" class="drawer" hidden></div>
+<div id="pop" class="pop" hidden></div>
+<div id="datalists"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/static/js/rangetick.js"></script>
+<script src="/static/js/app.js"></script>
+<script src="/static/js/sidepane.js"></script>
+<script src="/static/js/bulk.js"></script>
+<script src="/static/js/entities.js"></script>
+<script src="/static/js/rules.js"></script>
+<script src="/static/js/quotesug.js"></script>
+<script src="/static/js/passui.js"></script>
+<script src="/static/js/qpassui.js"></script>
+<script src="/static/js/qfocusui.js"></script>
+<script src="/static/js/eattrui.js"></script>
+<script src="/static/js/fragui.js"></script>
+<script src="/static/js/splitui.js"></script>
+<script src="/static/js/flagsui.js"></script>
+<script src="/static/js/corefui.js"></script>
+</body>
+</html>
